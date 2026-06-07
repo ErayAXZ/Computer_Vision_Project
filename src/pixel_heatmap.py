@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # Read the CSV file properly
-file_path = r"C:\Users\lion7\Documents\GitHub\Computer_Vision_Project\src\mnist_test.csv"
+file_path = r"C:\Users\lion7\Documents\GitHub\Computer_Vision_Project\data\mnist_test.csv"
 
 with open(file_path, 'r') as f:
     # Read the first line (or any specific line you want)
