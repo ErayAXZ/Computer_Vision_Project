@@ -33,12 +33,8 @@ class Sample:
             else : 
                 raise Exception("unprocessed pixel")
         max_val = max(self.int_flat)
-        print(max_val)
         min_val = min(self.int_flat)
-        print(min_val)
-        print(self.int_flat)
         self.int_flat = [(val - min_val) / (max_val - min_val) for val in self.int_flat ]
-        print(self.int_flat)
 
     def __init__(self,label,image):
         self.int_flat = []
@@ -86,7 +82,5 @@ for i in range(1,10):
     with open(file) as file:
         for line in file:
             line = line.replace('"',"").split(",")
-            print(line[0])
             new_sample = Sample(line[0],line[1:])
-            print("pogram terminated")
-            sys.exit()
+print("pogram terminated")
