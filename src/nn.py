@@ -16,11 +16,36 @@ class Node :
 
 class Sample:
         
+    def reshape(self):
+        for row in range(27) :
+            self.image.append([])
+            for index in range(27) : 
+                self.image[row].append(self.int_flat[row*28 + index]) 
+        for i in self.image:
+            print(i)     
+            
+    def normalise(self):
+        for i in self.flat:
+            if isinstance(i,str) :
+                self.int_flat.append(int(i))
+            elif isinstance(i,int):
+                self.int_flat.append(i)
+            else : 
+                raise Exception("unprocessed pixel")
+        max_val = max(self.int_flat)
+        print(max_val)
+        min_val = min(self.int_flat)
+        print(min_val)
+        print(self.int_flat)
+        self.int_flat = [(val - min_val) / (max_val - min_val) for val in self.int_flat ]
+        print(self.int_flat)
+
     def __init__(self,label,image):
-        self.label = label
-        self.prediction = -1
+        self.int_flat = []
         self.image = []
+        self.label = label
         self.flat = image
+        self.prediction = -1
         self.one_hot_label =    [[1,0,0,0,0,0,0,0,0,0],
                                 [0,1,0,0,0,0,0,0,0,0],
                                 [0,0,1,0,0,0,0,0,0,0],
@@ -30,23 +55,10 @@ class Sample:
                                 [0,0,0,0,0,0,1,0,0,0],
                                 [0,0,0,0,0,0,0,1,0,0],
                                 [0,0,0,0,0,0,0,0,1,0],
-                                [0,0,0,0,0,0,0,0,0,]]
-        normalise(self)
-        reshape(self)
+                                [0,0,0,0,0,0,0,0,0,1]]
+        self.normalise()
+        self.reshape()
         
-    def reshape(self):
-        for row in range(27) :
-            self.image.append([])
-            for index in range(27) : 
-                self.image[row].append(self.flat[row*28 + index]) 
-        for i in self.image:
-            print(i)     
-            
-    def normalise(self):
-        max = max(self.flat)
-        min = min(self.flat)
-        for i in flat:
-            i = (i-min)/(max-min)
     
     def set_prediction(self,prediciton):
         self.prediction = prediciton
@@ -65,6 +77,16 @@ class Layer:
             node.forward_pass(input)
     
 
+from pathlib import Path
+import sys
+neighbour_folder = Path(__file__).parent.parent / "data"
 
-input = 1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,203,193,30,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,203,253,131,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,102,254,151,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,102,253,151,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,41,254,253,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,253,252,82,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,152,253,203,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,152,252,203,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,92,253,214,10,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,10,212,253,50,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,203,254,112,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,162,253,151,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,102,254,151,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,102,253,192,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,102,254,253,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,102,253,252,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,41,255,253,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,253,252,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,173,253,62,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,51,252,102,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-new_sample = Sample(input[0],input[1:])
+for i in range(1,10):
+    file =  Path(__file__).parent.parent / "data" / f"mnist_train-{i}.csv"
+    with open(file) as file:
+        for line in file:
+            line = line.replace('"',"").split(",")
+            print(line[0])
+            new_sample = Sample(line[0],line[1:])
+            print("pogram terminated")
+            sys.exit()
