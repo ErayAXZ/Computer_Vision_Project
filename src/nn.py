@@ -1,8 +1,8 @@
 class Node :
-    def __init__(self) :
+    def __init__(self,inputs) :
         self.inputs = []
         self.weights = []
-        self.bias = 0
+        self.bias = 0.1
         self.output = 0
         
     def forward_pass(self,inputs) :
@@ -10,9 +10,32 @@ class Node :
             self.output += self.inputs[i] * self.weights[i] 
         self.output += self.bias
     
+    def link_input(self,io_links) :
+        for i in io_links:
+            self.inputs.append(i)
+        self.weights = [0.1 for connection in range(len(self.inputs))]
+
     def activate(self):
         if self.output < 0:
             self.output = 0
+class Network:
+    def __init__(self,layer_sizes):
+        self.network = []
+        for layer_num in range(len(layer_sizes)):
+            self.network.append([])
+            for nodes in range(layer_num):
+                new_node = Node()
+                self.network[layer_num].append(new_node)
+    
+    def forward(self,x):
+        for layer in self.network:
+            for node in layer:
+                node.forward_pass()
+            
+    def predict(self,x):
+        outputs = self.forward_pass(x)
+        return outputs.index.max(outputs)
+        
 
 class Sample:
         
@@ -57,24 +80,10 @@ class Sample:
     def set_prediction(self,prediciton):
         self.prediction = prediciton
     
-class Layer:
-    def __init__(self,layer_size,input_size):
-        self.layer_size = layer_size
-        self.input_size = input_size
-        self.nodes = []
-        for i in range(self.layer_size):
-            new_node = Node()
-            self.nodes.append(new_node)
-            
-    def forward(self,input) : 
-        for node in self.nodes:
-            node.forward_pass(input)
-
-
 
 def image_sample(file,samples):
-    plt.figure(figsize=(15, 3))
-    plt.title(f'{file}')
+    plt.figure(figsize=(10, 4))
+    plt.title(f'\n\n{file}')
     plt.axis("off")
     for i in range(len(samples)):
         plt.axis()
@@ -98,6 +107,9 @@ for i in range(1,10):
             line = line.replace('"',"").split(",")
             new_sample = Sample(line[0],line[1:])
             samples.append(new_sample)
-        image_sample(f"mnist_train-{i}",samples[(i*28+0):(i*28+6)])
-        #print("pogram terminated")
-        #sys.exit()
+        image_sample(f"mnist_train-{i}",samples[(i*28+0):(i*28+5)])
+        print("pogram terminated")
+        break
+    
+    nn = Network([784,64,10])
+    for layer in 
