@@ -1,4 +1,3 @@
-import matplotlib.pyplot as plt # pyright: ignore[reportMissingModuleSource]
 class Node :
     def __init__(self) :
         self.inputs = []
@@ -22,8 +21,6 @@ class Sample:
             self.image.append([])
             for index in range(27) : 
                 self.image[row].append(self.int_flat[row*28 + index]) 
-        for i in self.image:
-            print(i)     
             
     def normalise(self):
         for i in self.flat:
@@ -75,23 +72,24 @@ class Layer:
 
 
 
-def image_sample(file,label,img_array):
-    # === Plot the heatmap ===
-    plt.figure(figsize=(8, 8))
-    plt.imshow(img_array, cmap='gray_r', interpolation='nearest')  # gray_r = white background
-
-    plt.title(f'MNIST set {file} Digit \n (Label: {label})')
-    plt.colorbar(label='Pixel Intensity (0 = Black, 255 = White)')
-    plt.xticks([])
-    plt.yticks([])
-    plt.tight_layout()
+def image_sample(file,samples):
+    plt.figure(figsize=(15, 3))
+    plt.title(f'{file}')
+    plt.axis("off")
+    for i in range(len(samples)):
+        plt.axis()
+        plt.subplot(1,len(samples),i+1)
+        plt.imshow(samples[i].image, cmap='gray_r', interpolation='nearest')  # gray_r = white background
+        plt.tight_layout()
+        plt.title(f'Label: {samples[i].label}')
     plt.show()
 
-
-from pathlib import Path
+import matplotlib.pyplot as plt # pyright: ignore[reportMissingModuleSource]
 import sys
-neighbour_folder = Path(__file__).parent.parent / "data"
+from pathlib import Path
 
+neighbour_folder = Path(__file__).parent.parent / "data"
+samples = []
 for i in range(1,10):
     file =  Path(__file__).parent.parent / "data" / f"mnist_train-{i}.csv"
     
@@ -99,6 +97,7 @@ for i in range(1,10):
         for line in file:
             line = line.replace('"',"").split(",")
             new_sample = Sample(line[0],line[1:])
-        image_sample(f"mnist_train-{i}",new_sample.label,new_sample.image)
-        print("pogram terminated")
-        sys.exit()
+            samples.append(new_sample)
+        image_sample(f"mnist_train-{i}",samples[(i*28+0):(i*28+6)])
+        #print("pogram terminated")
+        #sys.exit()
