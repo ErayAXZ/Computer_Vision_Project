@@ -1,3 +1,4 @@
+import matplotlib.pyplot as plt # pyright: ignore[reportMissingModuleSource]
 class Node :
     def __init__(self) :
         self.inputs = []
@@ -69,9 +70,23 @@ class Layer:
             self.nodes.append(new_node)
             
     def forward(self,input) : 
-        for node in nodes:
+        for node in self.nodes:
             node.forward_pass(input)
-    
+
+
+
+def image_sample(file,label,img_array):
+    # === Plot the heatmap ===
+    plt.figure(figsize=(8, 8))
+    plt.imshow(img_array, cmap='gray_r', interpolation='nearest')  # gray_r = white background
+
+    plt.title(f'MNIST set {file} Digit \n (Label: {label})')
+    plt.colorbar(label='Pixel Intensity (0 = Black, 255 = White)')
+    plt.xticks([])
+    plt.yticks([])
+    plt.tight_layout()
+    plt.show()
+
 
 from pathlib import Path
 import sys
@@ -79,8 +94,11 @@ neighbour_folder = Path(__file__).parent.parent / "data"
 
 for i in range(1,10):
     file =  Path(__file__).parent.parent / "data" / f"mnist_train-{i}.csv"
+    
     with open(file) as file:
         for line in file:
             line = line.replace('"',"").split(",")
             new_sample = Sample(line[0],line[1:])
-print("pogram terminated")
+        image_sample(f"mnist_train-{i}",new_sample.label,new_sample.image)
+        print("pogram terminated")
+        sys.exit()
