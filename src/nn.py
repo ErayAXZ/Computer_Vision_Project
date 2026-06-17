@@ -1,41 +1,39 @@
-class Node :
-    def __init__(self,inputs) :
-        self.inputs = []
-        self.weights = []
-        self.bias = 0.1
-        self.output = 0
-        
-    def forward_pass(self,inputs) :
-        for i in range(len(self.inputs)) :
-            self.output += self.inputs[i] * self.weights[i] 
-        self.output += self.bias
-    
-    def link_input(self,io_links) :
-        for i in io_links:
-            self.inputs.append(i)
-        self.weights = [0.1 for connection in range(len(self.inputs))]
-
-    def activate(self):
-        if self.output < 0:
-            self.output = 0
 class Network:
     def __init__(self,layer_sizes):
         self.network = []
-        for layer_num in range(len(layer_sizes)):
-            self.network.append([])
-            for nodes in range(layer_num):
-                new_node = Node()
-                self.network[layer_num].append(new_node)
+        self.layers = []
+        for layer_size in range(len(layer_sizes)):
+            new_layer = Layer(layer_size)
+            self.layers.append(new_layer)
     
     def forward(self,x):
         for layer in self.network:
-            for node in layer:
-                node.forward_pass()
+            layer.forward_pass()
             
     def predict(self,x):
         outputs = self.forward_pass(x)
         return outputs.index.max(outputs)
         
+class Layer:
+    def __init__(self,size):
+        self.data = []
+        self.output = None
+        self.nodes = []
+        self.weights = [[0.1,0.1,0.1],[0.1,0.1,0.1],[0.1,0.1,0.1]]
+        self.bias = 0.1
+
+    def forward_pass(self,input,output_x,output_y,filter_len):
+        filter = []
+        self.output = [[0 for x in range(output_x)] for y in range(output_y)]
+
+        for y in range(output_y):
+            for x in range(output_x) :
+                pixel = 0
+
+                for ky in range(filter_len):
+                    for kx in range(filter_len):
+                        pixel += input[y+ky][x+kx] *self.weights[ky][kx]
+                self.output[y][x] = max(self.bias + pixel , 0)
 
 class Sample:
         
@@ -93,6 +91,7 @@ def image_sample(file,samples):
         plt.title(f'Label: {samples[i].label}')
     plt.show()
 
+
 import matplotlib.pyplot as plt # pyright: ignore[reportMissingModuleSource]
 import sys
 from pathlib import Path
@@ -108,8 +107,16 @@ for i in range(1,10):
             new_sample = Sample(line[0],line[1:])
             samples.append(new_sample)
         image_sample(f"mnist_train-{i}",samples[(i*28+0):(i*28+5)])
-        print("pogram terminated")
-        break
+    print(f"file {i} processed")
+    break # remove when you want all files analysed
     
-    nn = Network([784,64,10])
-    for layer in 
+nn = Network([784,676,400,100,10])
+
+# Create a simple 28x28 test image (all zeros)
+test_image = [[0 for _ in range(28)] for _ in range(28)]
+
+layer = Layer(size=676)
+layer.forward_pass(test_image, 26, 26, 3)
+
+print("Output shape:", len(layer.output), "x", len(layer.output[0]))
+print("First value:", layer.output[0][0])
