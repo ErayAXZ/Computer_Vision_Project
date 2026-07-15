@@ -1,3 +1,4 @@
+import random
 class Network:
     def __init__(self,layer_sizes):
         self.network = []
@@ -8,39 +9,47 @@ class Network:
     
     def forward(self,x):
         for layer in self.network:
-            layer.forward_pass()
+            layer.forward()
             
     def predict(self,x):
-        outputs = self.forward_pass(x)
+        outputs = self.forward(x)
         return outputs.index.max(outputs)
         
 class Layer:
-    def __init__(self,size):
-        self.data = []
-        self.output = None
-        self.nodes = []
-        self.weights = [[0.1,0.1,0.1],[0.1,0.1,0.1],[0.1,0.1,0.1]]
-        self.bias = 0.1
-
-    def forward_pass(self,input,output_x,output_y,filter_len):
-        filter = []
-        self.output = [[0 for x in range(output_x)] for y in range(output_y)]
-
-        for y in range(output_y):
-            for x in range(output_x) :
-                pixel = 0
-
-                for ky in range(filter_len):
-                    for kx in range(filter_len):
-                        pixel += input[y+ky][x+kx] *self.weights[ky][kx]
-                self.output[y][x] = max(self.bias + pixel , 0)
-
+    def __init__(self,filter_num, filter_size = 3):
+        self.filter_num = filter_num
+        self.filter_size = filter_size
+        
+        self.filters = [[[random.uniform(-0.1,0.1) for i in range(filter_size)] for j in range(filter_size)] for k in range(filter_num)]
+        self.biases = [0.0 for i in range(filter_num)]
+            
+    def forward(self,input_image):
+        h = len(input_image)
+        w = len(input_image[0])
+        
+        out_h = h - self.filter_size + 1
+        out_w = w - self.filter_size + 1
+        
+        self.output = [[[0 for i in range (out_w)] for j in range(out_h)] for k in range(self.filter_num)]
+        
+        for filter in range(self.filter_num):
+            for y in range(out_h):
+                for x in range(out_w):
+                    pixel = 0
+                    
+                    for ky in range(self.filter_size):
+                        for kx in range(self.filter_size):
+                            pixel += input_image[y+ky][x+kx] * self.filters[filter][ky][kx]
+                            
+                    self.output[filter][y][x] = max(pixel + self.biases[filter], 0)
+        return self.output
+                    
 class Sample:
         
     def reshape(self):
-        for row in range(27) :
+        for row in range(28) :
             self.image.append([])
-            for index in range(27) : 
+            for index in range(28) : 
                 self.image[row].append(self.int_flat[row*28 + index]) 
             
     def normalise(self):
@@ -58,19 +67,20 @@ class Sample:
     def __init__(self,label,image):
         self.int_flat = []
         self.image = []
-        self.label = label
+        self.label = int(label)
         self.flat = image
         self.prediction = -1
-        self.one_hot_label =    [[1,0,0,0,0,0,0,0,0,0],
-                                [0,1,0,0,0,0,0,0,0,0],
-                                [0,0,1,0,0,0,0,0,0,0],
-                                [0,0,0,1,0,0,0,0,0,0],
-                                [0,0,0,0,1,0,0,0,0,0],
-                                [0,0,0,0,0,1,0,0,0,0],
-                                [0,0,0,0,0,0,1,0,0,0],
-                                [0,0,0,0,0,0,0,1,0,0],
-                                [0,0,0,0,0,0,0,0,1,0],
-                                [0,0,0,0,0,0,0,0,0,1]]
+        identity_matrix =  [[1,0,0,0,0,0,0,0,0,0],
+                            [0,1,0,0,0,0,0,0,0,0],
+                            [0,0,1,0,0,0,0,0,0,0],
+                            [0,0,0,1,0,0,0,0,0,0],
+                            [0,0,0,0,1,0,0,0,0,0],
+                            [0,0,0,0,0,1,0,0,0,0],
+                            [0,0,0,0,0,0,1,0,0,0],
+                            [0,0,0,0,0,0,0,1,0,0],
+                            [0,0,0,0,0,0,0,0,1,0],
+                            [0,0,0,0,0,0,0,0,0,1]]
+        self.one_hot_label = identity_matrix[self.label]
         self.normalise()
         self.reshape()
         
@@ -112,11 +122,12 @@ for i in range(1,10):
     
 nn = Network([784,676,400,100,10])
 
-# Create a simple 28x28 test image (all zeros)
 test_image = [[0 for _ in range(28)] for _ in range(28)]
 
-layer = Layer(size=676)
-layer.forward_pass(test_image, 26, 26, 3)
+# Initialize the layer with 8 filters
+layer = Layer(filter_num=8, filter_size=3) 
 
-print("Output shape:", len(layer.output), "x", len(layer.output[0]))
-print("First value:", layer.output[0][0])
+# Forward pass only requires the image now
+layer.forward(test_image)
+
+print("Output shape:", len(layer.output), "filters x", len(layer.output[0]), "x", len(layer.output[0][0]))
