@@ -1,19 +1,43 @@
 import random
 class Network:
     def __init__(self,layer_sizes):
-        self.network = []
         self.layers = []
-        for layer_size in range(len(layer_sizes)):
-            new_layer = Layer(layer_size)
-            self.layers.append(new_layer)
+
+    def add(self,layer):
+        self.layers.append(layer)
     
     def forward(self,x):
-        for layer in self.network:
-            layer.forward()
-            
-    def predict(self,x):
-        outputs = self.forward(x)
-        return outputs.index.max(outputs)
+        input = x
+        for layer in self.layers:
+            input = layer.forward(input)
+        return self
+
+class DenseLayer:
+    def __init__(self,input_size,output_size):
+        self.weights = [[random.uniform(-0.1, 0.1) for _ in range(input_size)] for _ in range(output_size)]
+        self.biases = [0.0 for _ in range(output_size)]
+
+    def forward(self,input):
+        self.output = [0.0 for _ in range(len(self.biases))]
+        
+        for i in range(len(self.biases)):
+            activation = self.biases[i]
+            for j in range((len(input))):
+                activation += input[j] * self.weights[i][j]
+            self.output[i] = activation
+        
+        return self.output
+class FlattenLayer:
+    def __init__(self):
+        self.output = []
+    
+    def forward (self, input):
+        self.output = []
+        for i in input:
+            for j in i:
+                for k in j:
+                    self.output.append(k)
+        return self.output
         
 class Layer:
     def __init__(self,filter_num, filter_size = 3):
@@ -88,6 +112,9 @@ class Sample:
     def set_prediction(self,prediciton):
         self.prediction = prediciton
     
+    def eval_pred(self,prediction):
+        return self.label
+    
 
 def image_sample(file,samples):
     plt.figure(figsize=(10, 4))
@@ -100,6 +127,7 @@ def image_sample(file,samples):
         plt.tight_layout()
         plt.title(f'Label: {samples[i].label}')
     plt.show()
+    
 
 
 import matplotlib.pyplot as plt # pyright: ignore[reportMissingModuleSource]
@@ -120,14 +148,12 @@ for i in range(1,10):
     print(f"file {i} processed")
     break # remove when you want all files analysed
     
-nn = Network([784,676,400,100,10])
-
+nn = Network()
+nn.add(Layer(8,3)).add(FlattenLayer()).add(DenseLayer(5408,10))
 test_image = [[0 for _ in range(28)] for _ in range(28)]
 
 # Initialize the layer with 8 filters
-layer = Layer(filter_num=8, filter_size=3) 
 
 # Forward pass only requires the image now
-layer.forward(test_image)
-
-print("Output shape:", len(layer.output), "filters x", len(layer.output[0]), "x", len(layer.output[0][0]))
+prediction = nn.forward(test_image)
+print("Final Output Array (10 categories):", prediction)
